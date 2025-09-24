@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.blueAccent,
       body: Center(
         child: Text(
-          'Nombre de la App',
+          'CastlePrecinct',
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,

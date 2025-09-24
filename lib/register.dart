@@ -65,7 +65,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => MyHomePage(title: 'Home')),
+                        MaterialPageRoute(builder: (context) => MyHomePage(title: 'CastlePrecinct')),
                       );
                     },
                     child: Text('Registrarse'),

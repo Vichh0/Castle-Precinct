@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'config.dart';
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key, required String title});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +16,7 @@ class MyHomePage extends StatelessWidget {
           title: Padding(
             padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
             child: Text(
-              title,
+              'CastlePrecinct',
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
