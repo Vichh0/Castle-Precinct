@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'config.dart';
+import 'recintos.dart';
+import 'eventos.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required String title});
@@ -46,8 +48,8 @@ class MyHomePage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            Center(child: Text('Contenido de Evento')),
-            Center(child: Text('Contenido de Recinto')),
+            Eventostab(),
+            RecintosTab(),
           ],
         ),
       ),
