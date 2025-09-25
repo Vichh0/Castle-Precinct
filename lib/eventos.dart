@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Eventostab extends StatelessWidget {
 
-  void _showEventosDialog(BuildContext context, String title, String description, [String? contacto, String? ubicacion]) {
+  void _showEventosDialog(BuildContext context, String title, String description, [ String? ubicacion, String? fecha]) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -12,13 +12,13 @@ class Eventostab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(description),
-            if (contacto != null) ...[
-              SizedBox(height: 12),
-              Text('Contacto: $contacto'),
-            ],
             if (ubicacion != null) ...[
               SizedBox(height: 12),
               Text('Ubicación: $ubicacion'),
+            ],
+            if (fecha != null) ...[
+              SizedBox(height: 12),
+              Text('Fecha: $fecha'),
             ],
           ],
         ),
@@ -30,6 +30,148 @@ class Eventostab extends StatelessWidget {
         ],
       ),
     );
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: GridView.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        children: [
+          InkWell(
+            onTap: () => _showEventosDialog(
+              context,
+              'Carrera de Ciclismo',
+              'Competencia nacional de ciclismo en el velódromo.',
+              'Velódromo',
+              '12 de Octubre, 2025',
+            ),
+            child: Card(
+              elevation: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.event, size: 48, color: Colors.blue),
+                        Text('Carrera de Ciclismo', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showEventosDialog(
+              context,
+              'Torneo de Natación',
+              'Evento de natación en la piscina olímpica.',
+              'Piscina',
+              '5 de Noviembre, 2026',
+            ),
+            child: Card(
+              elevation: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.event, size: 48, color: Colors.blue),
+                        Text('Torneo de Natación', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showEventosDialog(
+              context,
+              'Festival Deportivo',
+              'Jornada de deportes y actividades recreativas.',
+              'Centro Olimpico',
+              '20 de Agosto, 2027',
+            ),
+            child: Card(
+              elevation: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.event, size: 48, color: Colors.blue),
+                        Text('Festival Deportivo', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showEventosDialog(
+              context,
+              'Entrenamiento Olimpico',
+              'Sesión especial para atletas.',
+              'Centro Olimpico',
+              '15 de Marzo, 2025',
+            ),
+            child: Card(
+              elevation: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.event, size: 48, color: Colors.blue),
+                        Text('Entrenamiento Olimpico', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () => _showEventosDialog(
+              context,
+              'Actividades Comunales',
+              'Junta de vecinos con actividades recreativas.',
+              'Complejo de Canchas',
+              '10 de Diciembre, 2026',
+            ),
+            child: Card(
+              elevation: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.event, size: 48, color: Colors.blue),
+                        Text('Actividades Comunales', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+  /*
   final List<Map<String, String>> eventos = [
     {
       'titulo': 'Carrera de Ciclismo',
@@ -143,4 +285,4 @@ class Eventostab extends StatelessWidget {
       ),
     );
   }
-}
+}*/
