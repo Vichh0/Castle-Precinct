@@ -23,13 +23,25 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.blueAccent,
       body: Center(
-        child: Text(
-          'CastlePrecinct',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/logo castleprescinct.png',
+              width: 180,
+              height: 180,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 32),
+            Text(
+              'CastlePrecinct',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
