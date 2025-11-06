@@ -30,8 +30,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 24),
+              // Card ahora con fondo azul y campos con fondo blanco para legibilidad
               Card(
                 elevation: 8,
+                color: Colors.blue[100],
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -42,6 +44,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         decoration: InputDecoration(
                           labelText: 'Correo electrónico',
                           border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
                       ),
                       SizedBox(height: 16),
@@ -50,6 +54,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         decoration: InputDecoration(
                           labelText: 'Contraseña',
                           border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
                         obscureText: true,
                       ),
