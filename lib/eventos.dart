@@ -6,6 +6,8 @@ class Eventostab extends StatefulWidget {
 }
 
 class _EventostabState extends State<Eventostab> {
+  DateTime _selectedDate = DateTime.now();
+
   final List<Map<String, String>> _eventos = [
     {
       'titulo': 'Carrera de Ciclismo',
@@ -31,39 +33,44 @@ class _EventostabState extends State<Eventostab> {
       'ubicacion': 'Centro Olimpico',
       'fecha': '15 de Marzo, 2025',
     },
-    {
-      'titulo': 'Actividades Comunales',
-      'descripcion': 'Junta de vecinos con actividades recreativas.',
-      'ubicacion': 'Complejo de Canchas',
-      'fecha': '10 de Diciembre, 2026',
-    },
   ];
 
-  void _showEventosDialog(BuildContext context, String title, String description, [String? ubicacion, String? fecha]) {
+  // Mapa de actividades por fecha (clave YYYY-MM-DD)
+  final Map<String, List<Map<String, String>>> _activitiesByDate = {
+    // hoy
+    _keyForDateStatic(DateTime.now()): [
+      {'title': 'Carrera de Ciclismo', 'subtitle': 'Velódromo - 10:00'},
+      {'title': 'Entrenamiento Juvenil', 'subtitle': 'Centro Olímpico - 14:00'},
+    ],
+    // mañana
+    _keyForDateStatic(DateTime.now().add(Duration(days: 1))): [
+      {'title': 'Torneo de Natación', 'subtitle': 'Piscina Olímpica - 09:00'},
+    ],
+  };
+
+  static String _keyForDateStatic(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  String _keyForDate(DateTime date) => _keyForDateStatic(date);
+
+  List<Map<String, String>> _activitiesFor(DateTime date) {
+    return _activitiesByDate[_keyForDate(date)] ?? [];
+  }
+
+  void _onDateChanged(DateTime date) {
+    setState(() {
+      _selectedDate = date;
+    });
+  }
+
+  void _showActivityDialog(Map<String, String> item) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(description),
-            if (ubicacion != null) ...[
-              SizedBox(height: 12),
-              Text('Ubicación: $ubicacion'),
-            ],
-            if (fecha != null) ...[
-              SizedBox(height: 12),
-              Text('Fecha: $fecha'),
-            ],
-          ],
-        ),
+        title: Text(item['title'] ?? ''),
+        content: Text(item['subtitle'] ?? ''),
         actions: [
-          TextButton(
-            child: Text('Cerrar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar')),
         ],
       ),
     );
@@ -73,56 +80,54 @@ class _EventostabState extends State<Eventostab> {
     final _tituloController = TextEditingController();
     final _descripcionController = TextEditingController();
     final _ubicacionController = TextEditingController();
-    final _fechaController = TextEditingController();
+    final _horaController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Agregar Evento'),
+          title: const Text('Agregar Evento'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: _tituloController,
-                  decoration: InputDecoration(labelText: 'Título'),
-                ),
-                TextField(
-                  controller: _descripcionController,
-                  decoration: InputDecoration(labelText: 'Descripción'),
-                  maxLines: 2,
-                ),
-                TextField(
-                  controller: _ubicacionController,
-                  decoration: InputDecoration(labelText: 'Ubicación'),
-                ),
-                TextField(
-                  controller: _fechaController,
-                  decoration: InputDecoration(labelText: 'Fecha'),
-                ),
+                TextField(controller: _tituloController, decoration: const InputDecoration(labelText: 'Título')),
+                TextField(controller: _descripcionController, decoration: const InputDecoration(labelText: 'Descripción'), maxLines: 2),
+                TextField(controller: _ubicacionController, decoration: const InputDecoration(labelText: 'Ubicación')),
+                TextField(controller: _horaController, decoration: const InputDecoration(labelText: 'Hora (ej. 14:00)')),
               ],
             ),
           ),
           actions: [
-            TextButton(
-              child: Text('Cancelar'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            TextButton(child: const Text('Cancelar'), onPressed: () => Navigator.of(context).pop()),
             ElevatedButton(
-              child: Text('Agregar'),
+              child: const Text('Agregar'),
               onPressed: () {
-                if (_tituloController.text.isNotEmpty && _descripcionController.text.isNotEmpty) {
-                  setState(() {
-                    _eventos.add({
-                      'titulo': _tituloController.text,
-                      'descripcion': _descripcionController.text,
-                      'ubicacion': _ubicacionController.text,
-                      'fecha': _fechaController.text,
-                    });
+                final titulo = _tituloController.text.trim();
+                final descripcion = _descripcionController.text.trim();
+                final ubicacion = _ubicacionController.text.trim();
+                final hora = _horaController.text.trim();
+
+                if (titulo.isEmpty || descripcion.isEmpty) return;
+
+                setState(() {
+                  _eventos.add({
+                    'titulo': titulo,
+                    'descripcion': descripcion,
+                    'ubicacion': ubicacion,
+                    'fecha': _selectedDate.toIso8601String(),
                   });
-                  Navigator.of(context).pop();
-                }
+
+                  final key = _keyForDate(_selectedDate);
+                  final entry = {'title': titulo, 'subtitle': '${ubicacion.isNotEmpty ? '$ubicacion - ' : ''}${hora.isNotEmpty ? hora : ''}'};
+                  if (_activitiesByDate.containsKey(key)) {
+                    _activitiesByDate[key]!.add(entry);
+                  } else {
+                    _activitiesByDate[key] = [entry];
+                  }
+                });
+
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -133,53 +138,98 @@ class _EventostabState extends State<Eventostab> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            children: _eventos.map((evento) {
-              return InkWell(
-                onTap: () => _showEventosDialog(
-                  context,
-                  evento['titulo'] ?? '',
-                  evento['descripcion'] ?? '',
-                  evento['ubicacion'],
-                  evento['fecha'],
-                ),
-                child: Card(
-                  elevation: 4,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Icon(Icons.event, size: 48, color: Colors.blue),
-                            Text(evento['titulo'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-                    ],
+    final activities = _activitiesFor(_selectedDate);
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Calendar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: CalendarDatePicker(
+                    initialDate: _selectedDate,
+                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    onDateChanged: _onDateChanged,
                   ),
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            ),
+
+            // Encabezado actividades
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: Row(
+                children: [
+                  Text(
+                    'Actividades - ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(icon: const Icon(Icons.refresh), onPressed: () => setState(() {})),
+                ],
+              ),
+            ),
+
+            // Lista de actividades en cards
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: activities.isEmpty
+                    ? Center(
+                        child: Card(
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text('No hay actividades para esta fecha', style: TextStyle(color: Colors.black54)),
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.only(bottom: 16.0, top: 4.0),
+                        itemCount: activities.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final item = activities[index];
+                          return Card(
+                            elevation: 3,
+                            child: InkWell(
+                              onTap: () => _showActivityDialog(item),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    const CircleAvatar(backgroundColor: Colors.blue, child: Icon(Icons.event, color: Colors.white)),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(item['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 6),
+                                          Text(item['subtitle'] ?? '', style: const TextStyle(color: Colors.black54)),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+          ],
         ),
-        Positioned(
-          bottom: 24,
-          right: 24,
-          child: FloatingActionButton(
-            onPressed: _showAddEventoDialog,
-            child: Icon(Icons.add),
-            tooltip: 'Agregar Evento',
-          ),
-        ),
-      ],
+      ),
+      floatingActionButton: FloatingActionButton(onPressed: _showAddEventoDialog, child: const Icon(Icons.add), tooltip: 'Agregar Evento'),
     );
   }
 }
