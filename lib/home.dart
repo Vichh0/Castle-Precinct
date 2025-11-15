@@ -34,7 +34,7 @@ class MyHomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ConfigPage()),
+                  MaterialPageRoute(builder: (context) => ConfigPage(onThemeChanged: (theme) {})),
                 );
               },
             ),

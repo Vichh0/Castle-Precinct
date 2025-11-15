@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Eventostab extends StatefulWidget {
   @override
@@ -7,51 +9,85 @@ class Eventostab extends StatefulWidget {
 
 class _EventostabState extends State<Eventostab> {
   DateTime _selectedDate = DateTime.now();
+  List<Map<String, String>> _eventos = [];
+  Map<String, List<Map<String, String>>> _activitiesByDate = {};
 
-  final List<Map<String, String>> _eventos = [
-    {
-      'titulo': 'Carrera de Ciclismo',
-      'descripcion': 'Competencia nacional de ciclismo en el velódromo.',
-      'ubicacion': 'Velódromo',
-      'fecha': '12 de Octubre, 2025',
-    },
-    {
-      'titulo': 'Torneo de Natación',
-      'descripcion': 'Evento de natación en la piscina olímpica.',
-      'ubicacion': 'Piscina',
-      'fecha': '5 de Noviembre, 2026',
-    },
-    {
-      'titulo': 'Festival Deportivo',
-      'descripcion': 'Jornada de deportes y actividades recreativas.',
-      'ubicacion': 'Centro Olimpico',
-      'fecha': '20 de Agosto, 2027',
-    },
-    {
-      'titulo': 'Entrenamiento Olimpico',
-      'descripcion': 'Sesión especial para atletas.',
-      'ubicacion': 'Centro Olimpico',
-      'fecha': '15 de Marzo, 2025',
-    },
-  ];
-
-  // Mapa de actividades por fecha (clave YYYY-MM-DD)
-  final Map<String, List<Map<String, String>>> _activitiesByDate = {
-    // hoy
-    _keyForDateStatic(DateTime.now()): [
-      {'title': 'Carrera de Ciclismo', 'subtitle': 'Velódromo - 10:00'},
-      {'title': 'Entrenamiento Juvenil', 'subtitle': 'Centro Olímpico - 14:00'},
-    ],
-    // mañana
-    _keyForDateStatic(DateTime.now().add(Duration(days: 1))): [
-      {'title': 'Torneo de Natación', 'subtitle': 'Piscina Olímpica - 09:00'},
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
 
   static String _keyForDateStatic(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   String _keyForDate(DateTime date) => _keyForDateStatic(date);
+
+  Future<void> _loadEvents() async {
+    final prefs = await SharedPreferences.getInstance();
+    final eventsJson = prefs.getString('eventos_list') ?? '[]';
+    final activitiesJson = prefs.getString('activities_list') ?? '{}';
+
+    final List<dynamic> eventsList = jsonDecode(eventsJson);
+    final Map<String, dynamic> activitiesMap = jsonDecode(activitiesJson);
+
+    setState(() {
+      _eventos = eventsList.map((e) => Map<String, String>.from(e as Map)).toList();
+
+      _activitiesByDate = activitiesMap.map((key, value) {
+        final list = (value as List).map((item) => Map<String, String>.from(item as Map)).toList();
+        return MapEntry(key, list);
+      });
+
+      // Si está vacío, cargar datos de ejemplo
+      if (_eventos.isEmpty) {
+        _eventos = [
+          {
+            'titulo': 'Carrera de Ciclismo',
+            'descripcion': 'Competencia nacional de ciclismo en el velódromo.',
+            'ubicacion': 'Velódromo',
+            'fecha': '12 de Octubre, 2025',
+          },
+          {
+            'titulo': 'Torneo de Natación',
+            'descripcion': 'Evento de natación en la piscina olímpica.',
+            'ubicacion': 'Piscina',
+            'fecha': '5 de Noviembre, 2026',
+          },
+          {
+            'titulo': 'Festival Deportivo',
+            'descripcion': 'Jornada de deportes y actividades recreativas.',
+            'ubicacion': 'Centro Olimpico',
+            'fecha': '20 de Agosto, 2027',
+          },
+          {
+            'titulo': 'Entrenamiento Olimpico',
+            'descripcion': 'Sesión especial para atletas.',
+            'ubicacion': 'Centro Olimpico',
+            'fecha': '15 de Marzo, 2025',
+          },
+        ];
+
+        _activitiesByDate = {
+          _keyForDateStatic(DateTime.now()): [
+            {'title': 'Carrera de Ciclismo', 'subtitle': 'Velódromo - 10:00'},
+            {'title': 'Entrenamiento Juvenil', 'subtitle': 'Centro Olímpico - 14:00'},
+          ],
+          _keyForDateStatic(DateTime.now().add(Duration(days: 1))): [
+            {'title': 'Torneo de Natación', 'subtitle': 'Piscina Olímpica - 09:00'},
+          ],
+        };
+
+        _saveEvents();
+      }
+    });
+  }
+
+  Future<void> _saveEvents() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('eventos_list', jsonEncode(_eventos));
+    await prefs.setString('activities_list', jsonEncode(_activitiesByDate));
+  }
 
   List<Map<String, String>> _activitiesFor(DateTime date) {
     return _activitiesByDate[_keyForDate(date)] ?? [];
@@ -102,7 +138,7 @@ class _EventostabState extends State<Eventostab> {
             TextButton(child: const Text('Cancelar'), onPressed: () => Navigator.of(context).pop()),
             ElevatedButton(
               child: const Text('Agregar'),
-              onPressed: () {
+              onPressed: () async {
                 final titulo = _tituloController.text.trim();
                 final descripcion = _descripcionController.text.trim();
                 final ubicacion = _ubicacionController.text.trim();
@@ -127,6 +163,7 @@ class _EventostabState extends State<Eventostab> {
                   }
                 });
 
+                await _saveEvents();
                 Navigator.of(context).pop();
               },
             ),
