@@ -127,6 +127,56 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
+  void _showAbout() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Acerca de'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'CastlePrecinct',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Vicente Castillo',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text(
+                  'CastlePrecinct es una aplicación diseñada para gestionar eventos y recintos deportivos. Permite registrar cuentas, crear eventos, visualizarlos en un calendario y administrar actividades de forma sencilla.',
+                  style: TextStyle(fontSize: 13),
+                  textAlign: TextAlign.justify,
+                ),
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text(
+                  '© 2025 CastlePrecinct. Todos los derechos reservados.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<List<Map<String, String>>> _getAllAccounts() async {
     final prefs = await SharedPreferences.getInstance();
     final List<Map<String, String>> accounts = [];
@@ -287,6 +337,47 @@ class _ConfigPageState extends State<ConfigPage> {
                         onChanged: _toggleTheme,
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Card Acerca de
+              Card(
+                elevation: 4,
+                color: Colors.orange[50],
+                child: InkWell(
+                  onTap: _showAbout,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 12.0),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Colors.orange[200],
+                          child: const Icon(Icons.info, size: 30, color: Colors.white),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Acerca de',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Información sobre la aplicación',
+                                style: TextStyle(fontSize: 13, color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      ],
+                    ),
                   ),
                 ),
               ),
